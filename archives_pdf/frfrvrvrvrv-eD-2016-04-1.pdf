@@ -1,0 +1,85 @@
+<pdml><head><title>Test</title><subject>Test></subject><keywords></keywords><author>BiilinkAgency</author></head><body>		<font face="Calibri" size="14pt">
+		<cell width="3.6cm" left="15cm" top="1cm"  align="right">N° Ordre du reçu</cell>
+		<cell width="3.6cm" left="15cm" top="1.4cm"  align="right">Don N°eD-2016-04-1</cell>
+		</font>
+		<img src="http://liguehavraise.fr/wp-content/uploads/2016/04/ligue-havraise-pour-pdf-300x173.jpg" top="2cm" left="8cm" height="3cm"/>
+		<font face="Calibri" size="14pt">
+		<cell width="7.5cm" left="1.6cm" top="5.7cm"  align="center">Reçu aux oeuvres</cell>
+		</font>
+		<font face="CalibriBold" size="14pt">
+		<cell width="7.5cm" left="1.6cm" top="6.3cm"  align="center">DON 2016</cell>
+		</font>
+		<font face="Calibri" size="9pt">
+		<cell width="7.5cm" left="1.6cm" top="6.8cm"  align="center">(Article 200 et 238bis du Code Général des impôts)</cell>
+		</font>
+					<font face="Calibri" size="10pt">
+			<cell width="5cm" left="14.1cm" top="5.5cm"  align="left">M ou Mme frfrvrvrvrv</cell>
+			</font>
+			<font face="CalibriItalic" size="10pt">
+			<cell width="5cm" left="14.1cm" top="6.1cm"  align="left">test</cell>
+
+			<cell width="5cm" left="14.1cm" top="7.1cm"  align="left">76001 TEST</cell>
+			</font>
+						<rect top='8cm' left='1.6cm' border='1' width='18cm' height='0.5cm' fillcolor="#D9D9D9">
+			<font face="Calibri" size="11pt"><cell width="100%" left="1.6" top='8.1cm' align="center">Bénéficiaire des versements</cell></font>
+		</rect>
+		<div top='8.5cm' left='1.6cm' border='1' width='18cm' height='7.2cm'>
+			<font face="Calibri" size="11pt">
+				<cell left="1.9cm" top="9.1cm" align="left">Nom ou dénomination :</cell>
+				<cell left="1.9cm" top="10.6cm" align="left">Adresse :</cell>
+				<cell left="1.9cm" top="11.1cm" align="left">N° :</cell>
+				<cell left="1.9cm" top="11.6cm" align="left">Code Postal :</cell>
+				<cell left="5.2cm" top="11.6cm" align="left">Commune :</cell>
+				<cell left="1.9cm" top="12.6cm" align="left">Objet :</cell>
+				<cell left="1.9cm" top="14.4cm" align="center" width='18cm'>« Association ou fondation reconnue d'utilité publique par décret en date du 25 septembre 1985</cell>
+				<cell left="1.9cm" top="14.9cm" align="center" width='18cm'>Publié au Journal Officiel du 22 novembre 1985 ».</cell>
+			</font>
+			<font face="CalibriBold" size="11pt">
+				<cell left="2.4cm" top="10.1cm" align="left">Reconnue d'utilité publique par Décret du 25 juillet  1930</cell>
+				<cell left="2.55cm" top="11.1cm" align="left">75/79 rue Emile Zola</cell>
+				<cell left="4cm" top="11.6cm" align="left">76600</cell>
+				<cell left="7.05cm" top="11.6cm" align="left">Le Havre</cell>
+				<cell left="1.9cm" top="13cm" align="left">« La défense des intérêts moraux et matériels des enfants, adolescents et adultes handicapés et de leur </cell>
+				<cell left="1.9cm" top="13.5cm" align="left">famille »</cell>
+			</font>
+			<font face="CalibriItalic" size="14pt">
+				<cell left="2.4cm" top="9.6cm" align="left">LIGUE HAVRAISE POUR L'AIDE AUX PERSONNES HANDICAPÉES</cell>
+			</font>
+			
+
+		</div>
+				<div top='15.8cm' left='1.6cm' border='1' width='18cm' height='0.5cm' fillcolor="#D9D9D9">
+			<font face="Calibri" size="11pt"><cell width="18cm" left="1.6cm" top='15.9cm' align="center">Donateur</cell></font>
+		</div>
+		<div top='16.3cm' left='1.6cm' border='1' width='18cm' height='2.4cm'>
+			<font face="Calibri" size="11pt">
+						<cell width="100%" left="1.9cm" top="16.8cm" align="left">Nom :</cell>
+						<cell width="100%" left="1.9cm" top="17.3cm" align="left">Adresse :</cell>
+						<cell width="100%" left="1.9cm" top="17.8cm" align="left">Code Postal :</cell>
+						<cell width="100%" left="9.4cm" top="17.8cm" align="left">Commune :</cell>
+						</font>
+			<font face="CalibriBold" size="11pt">
+						<cell width="100%" left="2.9cm" top="16.8cm" align="left">frfrvrvrvrv</cell>
+						<cell width="100%" left="3.5cm" top="17.3cm" align="left">test</cell>
+						<cell width="100%" left="4cm" top="17.8cm" align="left">76001</cell>
+						<cell width="100%" left="11.3cm" top="17.8cm" align="left">test</cell>
+						</font>
+		</div>
+		<div top='16.3cm' left='1.6cm' border='1' width='18cm' height='8.2cm'>
+			<font face="Calibri" size="11pt">
+			<cell width="100%" left="1.9cm" top="19.2cm" align="left">Le bénéficiaire reconnait avoir reçu au titre des versements ouvrant droit à réduction d'impôts, la somme de :</cell>
+			<cell width="100%" left="1.9cm" top="20.2cm" align="left">VINGT-CINQ EUROS  ET TRENTE-SIX CENTS </cell>
+			<cell width="100%" left="1.9cm" top="21.2cm" align="left">Date du paiement :</cell>
+			<cell width="100%" left="1.9cm" top="22.2cm" align="left">Mode de versement : Paiement en ligne sur notre site </cell>
+			<cell width="100%" left="14.3cm" top="23cm" align="left">Le Havre, le </cell>
+			<cell width="100%" left="14.6cm" top="23.5cm" align="left">La Présidente,</cell>
+			<cell width="100%" left="14.6cm" top="25.4cm" align="left">Christine LALLART</cell>
+			</font>
+			<font face="CalibriBold" size="11pt">
+			<cell width="100%" left="5.3cm" top="21.2cm" align="left">05/04/2016</cell>
+			<cell width="100%" left="11.2cm" top="22.2cm" align="left">http://liguehavraise.fr</cell>
+			<cell width="100%" left="16.3cm" top="23cm" align="left">06/04/2016</cell>
+
+			</font>
+		</div>
+		</body></pdml>
