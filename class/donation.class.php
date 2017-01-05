@@ -308,7 +308,7 @@ class donation extends bii_items {
 
 	public function montant_fr() {
 		$montant = $this->montant() * 1;
-		return bii_cvnbst($montant);
+		return $montant. " EUROS";
 	}
 
 	protected function en_tete() {
@@ -318,7 +318,7 @@ class donation extends bii_items {
 		<cell width="3.6cm" left="15cm" top="1cm"  align="right">N° Ordre du reçu</cell>
 		<cell width="3.6cm" left="15cm" top="1.4cm"  align="right">Don N°<?= $this->chrono(); ?></cell>
 		</font>
-		<img src="http://liguehavraise.fr/wp-content/uploads/2016/04/ligue-havraise-pour-pdf-300x173.jpg" top="2cm" left="8cm" height="3cm"/>
+		<img src="/web/clients/lhavrais/www.liguehavraise.fr/wp-content/uploads/2017/01/Nouveau-Logo-Ligue-Havraise-2016-300x185.jpg" top="2cm" left="8cm" height="3cm"/>
 		<font face="Calibri" size="14pt">
 		<cell width="7.5cm" left="1.6cm" top="5.7cm"  align="center">Reçu aux oeuvres</cell>
 		</font>
