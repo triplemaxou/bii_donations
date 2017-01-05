@@ -31,4 +31,17 @@ jQuery(function ($) {
 			}
 		});
 	});
+    
+    
+    $("#test-mail").click(function() {
+       jQuery.ajax({
+           url: ajaxurl,
+           data: {
+               'action': 'bii_test_mail'
+           },
+           success: function(reponse) {
+               console.log(reponse);
+           }
+       });
+    });
 });

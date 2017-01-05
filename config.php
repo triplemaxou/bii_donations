@@ -170,6 +170,12 @@ function bii_ajax_change_instance() {
 add_action('wp_ajax_bii_add_cotisation', 'bii_add_cotisation');
 add_action('wp_ajax_nopriv_bii_add_cotisation', 'bii_add_cotisation');
 
+/*function bii_send_mail() {
+    include("ajax/ajax_test_send_mail.php");
+    die();
+}
+add_action('wp_ajax_bii_test_mail', 'bii_send_mail');
+*/
 
 if (!bii_items::onSatellite()) {
 	add_action('wp_ajax_bii_change_instance', 'bii_ajax_change_instance');

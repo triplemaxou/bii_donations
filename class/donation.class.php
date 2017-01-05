@@ -69,7 +69,7 @@ class donation extends bii_items {
 	}
 	
 	public static function nom_classe_admin() {
-		return "don";
+		return "donation";
 	}
 
 	public static function exportable() {
@@ -529,6 +529,7 @@ class donation extends bii_items {
 		serialize($_POST);
 		update_option("bii_last_don", $miglaid);
 		$don->save_pdf();
+        $don->sendMailWithPdf();
 		fclose($fp);
 		exit;
 	}
@@ -562,12 +563,49 @@ class donation extends bii_items {
 		if(static::feminin()){
 			$ce = "cette";
 		}
-		$string = "$prenom $nom,"
+		$string = "<p>$prenom $nom,"
 			. "<br /><br />"
 			. "Merci pour votre $don de $montant € du $date. Votre aide nous est particulièrement utile et votre générosité est très appréciée. "
 			. "<br />Nous souhaitons vous exprimer nos sincères remerciements pour $ce $don."
-			. "<br />Vous pouvez télécharger votre reçu fiscal ici : <a class='theme-button' target='_blank' href='$lien' title='Télécharger le reçu'>Télécharger le reçu</a>";
+			. "<br />Vous pouvez télécharger votre reçu fiscal ici : <a class='theme-button' target='_blank' href='$lien' title='Télécharger le reçu'>Télécharger le reçu</a></p>";
 	
+        
+        $to_email = $this->email;
+        $from_email = "tiphaine.lecorvaisier@liguehavraise.com";
+        
+        $email_subject = "Votre $don sur " . get_bloginfo("name");
+        
+        $header[] = 'Content-type: text/html; charset=UTF-8';
+        $header[] = 'From: ' . get_bloginfo("name") . " <" . $from_email . ">";
+        
+        $retour = wp_mail($to_email, $email_subject, $string, $header);
+        
 		return $string;
-		}
+    }
+        
+    public function sendMailWithPdf() {
+        
+        $montant = $this->montant();
+        $nom = $this->nom();
+		$prenom = $this->prenom();
+        $don = $this->nom_classe_admin();
+		$lien = $this->lien_recu();
+		
+        $email_body = "<p>Bonjour,<br /><br />"
+            . "Vous venez de recevoir une $don de la part de $prenom $nom d'un montant de $montant €."
+			. "<br /><br />Vous pouvez télécharger le reçu fiscal ici : <a class='theme-button' target='_blank' href='$lien' title='Télécharger le reçu'>Télécharger le reçu</a></p>";
+        
+        $to_email = 'tiphaine.lecorvaisier@liguehavraise.com';
+        //$to_email = 'web@GROUPEJADOR.FR';
+        $from_email = $this->email;
+        
+        $email_subject = "Votre alerte mail sur " . get_bloginfo("name");
+        
+        $header[] = 'Content-type: text/html; charset=UTF-8';
+        $header[] = 'From: ' . get_bloginfo("name") . " <" . $from_email . ">";
+        
+        $retour = wp_mail($to_email, $email_subject, $email_body, $header);
+        //var_dump($retour);
+    }
+    
 }
