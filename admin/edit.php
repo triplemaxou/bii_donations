@@ -3,7 +3,7 @@ if (!isset($nom_classe)) {
 	$nom_classe = "produit";
 }
 
-ini_set('display_errors', '1');
+//ini_set('display_errors', '1');
 if ($nom_classe::editable()) {
 
 	$id = 0;

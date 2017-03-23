@@ -86,4 +86,11 @@ class cotisation extends donation {
 		ob_end_clean();
 		return $contents;
 	}
+    
+    public function lien_validation() {
+        $keyValidate = md5(uniqid($this->id, true));
+        $lien = site_url('/validate-don/') . "?cotisation=".$keyValidate;
+        $this->updateChamps($keyValidate, 'key_validate');
+        return $lien;
+    }
 }

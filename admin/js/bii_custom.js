@@ -4,7 +4,7 @@ jQuery(function ($) {
 		tohide += ", #formatdiv, #post_seriesdiv, #um-admin-access-settings, #wpex-metabox, #commentstatusdiv, #mymetabox_revslider_0, #wpex-gallery-metabox"
 			+ ", #toplevel_page_vc-welcome, #menu-tools, #toplevel_page_wpex-panel, #toplevel_page_about-ultimate, #menu-settings, #toplevel_page_gf_edit_forms"
 			+ ", #toplevel_page_uaf_settings_page, #menu-comments, #wp-admin-bar-comments, #latest-comments, #toplevel_page_woocommerce ";
-		tohide += ", #menu-posts-pafb-survey, #menu-posts-logooo, #menu-posts-product";
+		tohide += ", #menu-posts-logooo, #menu-posts-product";
 //		if (bii_userrole == "user") {		
 //			
 //		}

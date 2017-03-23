@@ -1,6 +1,6 @@
 <?php
 
-ini_set('display_errors', '1');
+//ini_set('display_errors', '1');
 require_once("/web/clients/lemdev/www.lemaistre-immo.fr/wp-content/plugins/biimmo/config.php");
 //annonce_image::autoTable(true);
 

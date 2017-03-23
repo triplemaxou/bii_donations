@@ -8,6 +8,7 @@
   License: GPL2
  */
 define('bii_debug_version', '1.2');
+define('bii_debug_logs_custom_path', plugin_dir_path(__FILE__)."output/custom.log");
 
 function biidebug_enqueueJS() {
 	wp_enqueue_script('util', plugins_url('js/util.js', __FILE__), array('jquery'), false, true);
@@ -16,7 +17,7 @@ function biidebug_enqueueJS() {
 	wp_enqueue_script('manual-lazyload', plugins_url('js/manual-lazyload.js', __FILE__), array('jquery', 'lazyload2', 'util'), false, true);
 }
 
-biidebug_enqueueJS();
+add_action('wp_enqueue_scripts', 'biidebug_enqueueJS');
 
 function bii_showlogs() {
 	?>
@@ -242,6 +243,26 @@ if (!function_exists("debugEcho")) {
 				error_log($log);
 			}
 		}
+	}
+    
+    function bii_custom_log($log, $addprefix = "", $all = true) {
+        
+        $url = bii_debug_logs_custom_path;
+        $res = fopen($url, "a+");		
+        if ($res !== false) {			
+            if (is_array($log) || is_object($log)) {
+                $log = print_r($log, true);
+            }
+            $date = date("d/m/Y H:i:s");
+            $prefix = "[Bii_cl v" . bii_debug_version . " $date $addprefix] ";
+            $suffix = "\n";
+            $log = $prefix . $log.$suffix;
+            fwrite($res, $log);
+            fclose($res);
+        }else{
+            bii_write_log($log);
+        }
+        
 	}
 
 }

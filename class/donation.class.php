@@ -16,6 +16,9 @@ class donation extends bii_items {
 	protected $migla;
 	protected $etat;
 	protected $lien_recu;
+    protected $is_validate;
+    protected $recu_send;
+    protected $key_validate;
 
 	public static function getListeProprietes() {
 		$array = [
@@ -31,6 +34,7 @@ class donation extends bii_items {
 			"migla" => "migla",
 			"numero_transaction_paypal" => "N° de Transaction Paypal",
 			"etat" => "État",
+            "is_validate" => "Validé",
 			"lien_recu" => "Reçu Fiscal",
 		];
 		return $array;
@@ -52,11 +56,11 @@ class donation extends bii_items {
 
 	public function lien_recu_ligneIA() {
 		$lr = $this->lien_recu;
-		$etat = $this->etat;
+		//$etat = $this->etat;
 		?>
 		<td class="lien_recu">
 			<?php
-			if ($etat == utf8_decode("payé")) {
+			if ($this->recu_send) {
 				if (!$lr) {
 					$this->save_pdf();
 					$lr = $this->lien_recu;
@@ -207,6 +211,17 @@ class donation extends bii_items {
 			return new static();
 		}
 	}
+    
+    public static function from_token($token) {
+        
+        $where = "key_validate = '".mysql_real_escape_string($token)."'";
+		$liste = static::all_id($where);
+		if ((bool) $liste) {
+			return new static($liste[0]);
+		} else {
+			return false;
+		}
+    }
 
 	public static function mappingArrayPaypal($post) {
 		$array = [
@@ -275,13 +290,13 @@ class donation extends bii_items {
 			$migla = $_REQUEST["id"];
 			if (isset($_REQUEST["cotisation"])) {
 				$cotisation = cotisation::from_session($migla);
-				$cotisation->changeEtat("payé");
+				//$cotisation->changeEtat("payé");
 				if (isset($_REQUEST["txn_id"])) {
 					$cotisation->addTransactionID($_REQUEST["txn_id"]);
 				}
 			} else {
 				$donation = static::from_session($migla);
-				$donation->changeEtat("payé");
+				//$donation->changeEtat("payé");
 				if (isset($_REQUEST["txn_id"])) {
 					$donation->addTransactionID($_REQUEST["txn_id"]);
 				}
@@ -291,7 +306,7 @@ class donation extends bii_items {
 //			consoleLog("Request");
 //			logRequestVars();
 		if (isset($_REQUEST["migla_listener"])) {
-			consoleLog("sendmail");
+			bii_custom_log("MIGLA_LISTENER sendmail");
 			if (isset($_REQUEST["cotisation"])) {
 				cotisation::sendmailIPN();
 			} else {
@@ -463,7 +478,7 @@ class donation extends bii_items {
 
 		$pdf = $this->display_pdf();
 
-		$myfile = fopen("/web/clients/lhavrais/www.liguehavraise.fr/wp-content/plugins/bii_donations/archives_pdf/$nom_fichier", "w+");
+		$myfile = fopen( bii_donation_path . "archives_pdf/$nom_fichier", "w+");
 //		@chmod($myfile,0755);
 		fputs($myfile, $pdf, strlen($pdf));
 		fclose($myfile);
@@ -490,20 +505,29 @@ class donation extends bii_items {
 	public static function sendmailIPN() {
 		// lecture du post de PayPal et ajout de 'cmd'
 		$req = 'cmd=_notify-validate';
-
+        bii_custom_log(var_export($_POST, true));
+        $cancel = false;
+        if (isset($_POST['payment_status']) && ($_POST['payment_status'] == 'Refunded' || $_POST['payment_status'] == 'Reversed')) {
+            $cancel = true;
+        }
+        
 		foreach ($_POST as $key => $value) {
 			$value = trim(urlencode(stripslashes($value)));
 			$req .= "&$key=$value";
 		}
 
 
-
+        $urlPaypal = 'www.paypal.com';
+        //$urlPaypal = 'www.sandbox.paypal.com';
+        //bii_custom_log($req);
 		// post back to PayPal system for validation
-		$header .= "POST /cgi-bin/webscr HTTP/1.0\r\n";
+		$header .= "POST /cgi-bin/webscr HTTP/1.1\r\n";
+        $header .= "Host: $urlPaypal\r\n";
 		$header .= "Content-Type: application/x-www-form-urlencoded\r\n";
 		$header .= "Content-Length: " . strlen($req) . "\r\n\r\n";
 
-		$fp = fsockopen('ssl://www.paypal.com', 443, $errno, $errstr, 30);
+		$fp = fsockopen("ssl://$urlPaypal", 443, $errno, $errstr, 30);
+        //bii_custom_log("ERROR fsockopen $errno : ".$errstr);
 		$etat_commande = "erreur";
 		// turn the original post data into an object we can work with
 		$txn = (object) $_POST;
@@ -511,28 +535,52 @@ class donation extends bii_items {
 			
 		} else {
 			fputs($fp, $header . $req);
+            bii_custom_log('RETOUR PayPal : ');
 			while (!feof($fp)) {
 				$res = fgets($fp, 1024);
+                bii_custom_log($res);
 				// proceed if transaction is verified
-				if (strcmp($res, "VERIFIED") == 0) {
+				if (strcmp(trim($res), "VERIFIED") == 0) {
 					$etat_commande = "payé";
-				} else if (strcmp($res, "INVALID") == 0) {
+				} else if (strcmp(trim($res), "INVALID") == 0) {
 					$etat_commande = "invalide";
 				}
 				$miglaid = $txn->custom;
 			}
-			$don = static::from_session($miglaid);
-			$don->updateChamps($etat_commande, "etat");
-			bii_write_log($miglaid);
-			
+            
+            bii_custom_log($miglaid . " : ". $etat_commande . " : ". $cancel);
+            $don = static::from_session($miglaid);
+            if ($cancel) {
+                $don->updateChamps("annulé", "etat");
+            } else {
+                $don->updateChamps($etat_commande, "etat");
+            }
 		}
 		serialize($_POST);
 		update_option("bii_last_don", $miglaid);
-		$don->save_pdf();
-        $don->sendMailWithPdf();
+        if ($etat_commande == "payé") {
+            //$don->save_pdf();
+            $don->sendMailWithValidate();
+            $don->sendMailDonnateur();
+            //$don->sendMailWithPdf();
+            //$don->sendMailDonnateurWhithPdf();
+        }
 		fclose($fp);
 		exit;
 	}
+    
+    //génére le reçu fiscal et l'envoi au donateur et à la ligue
+    public function sendFiscal() {
+        bii_custom_log("SendFiscal : ".$this->id);
+        $lr = $this->lien_recu;
+        if (!$lr) {
+            $this->save_pdf();
+            $lr = $this->lien_recu;
+        }
+        $this->sendMailWithPdf();
+        $this->sendMailDonnateurWhithPdf();
+        $this->updateChamps(1, "recu_send");
+    }
 
 	public static function sumDonation($where = "1=1") {
 		$class_name = static::prefix_bdd() . static::nom_classe_bdd();
@@ -559,6 +607,60 @@ class donation extends bii_items {
 		$prenom = $this->prenom();
 		$don = $this->nom_classe_admin();
 		$ce = "ce";
+		
+		if(static::feminin()){
+			$ce = "cette";
+		}
+		$string = "<p>$prenom $nom,"
+			. "<br /><br />"
+			. "Merci pour votre $don de $montant € du $date. Votre aide nous est particulièrement utile et votre générosité est très appréciée. "
+			. "<br />Nous souhaitons vous exprimer nos sincères remerciements pour $ce $don."
+            . "<br />Vous recevrez un lien pour récupérer votre reçu fiscal par email dans un délai de 1 mois.";
+	
+        
+		return $string;
+    }
+    
+    // mail envoyé au donateur a la validation du payement par PayPal
+    public function sendMailDonnateur() {
+        $montant = $this->montant();
+		$date = $this->date_insert();
+		$nom = $this->nom();
+		$prenom = $this->prenom();
+		$don = $this->nom_classe_admin();
+		$ce = "ce";
+		
+		if(static::feminin()){
+			$ce = "cette";
+		}
+		$string = "<p>$prenom $nom,"
+			. "<br /><br />"
+			. "Merci pour votre $don de $montant € du $date. Votre aide nous est particulièrement utile et votre générosité est très appréciée. "
+			. "<br />Nous souhaitons vous exprimer nos sincères remerciements pour $ce $don."
+			. "<br />Nous générerons votre reçu fiscal et vous l'enverrons dans un délai d'un mois minimum, sous réserve de validation."
+            . "<br /><br />Ligue Havraise</p>";
+	
+        
+        $to_email = $this->email;
+        //$to_email = "web@groupejador.fr";
+        $from_email = "siege@liguehavraise.com";
+        
+        $email_subject = "Votre $don sur " . get_bloginfo("name");
+        
+        $header[] = 'Content-type: text/html; charset=UTF-8';
+        $header[] = 'From: ' . get_bloginfo("name") . " <" . $from_email . ">";
+        
+        $retour = wp_mail($to_email, $email_subject, $string, $header);
+    }
+    
+    // mail envoyé au donateur avec son reçu fiscal
+    public function sendMailDonnateurWhithPdf() {
+        $montant = $this->montant();
+		$date = $this->date_insert();
+		$nom = $this->nom();
+		$prenom = $this->prenom();
+		$don = $this->nom_classe_admin();
+		$ce = "ce";
 		$lien = $this->lien_recu();
 		if(static::feminin()){
 			$ce = "cette";
@@ -567,11 +669,12 @@ class donation extends bii_items {
 			. "<br /><br />"
 			. "Merci pour votre $don de $montant € du $date. Votre aide nous est particulièrement utile et votre générosité est très appréciée. "
 			. "<br />Nous souhaitons vous exprimer nos sincères remerciements pour $ce $don."
-			. "<br />Vous pouvez télécharger votre reçu fiscal ici : <a class='theme-button' target='_blank' href='$lien' title='Télécharger le reçu'>Télécharger le reçu</a></p>";
-	
+			. "<br />Vous pouvez télécharger votre reçu fiscal ici : <a class='theme-button' target='_blank' href='$lien' title='Télécharger le reçu'>Télécharger le reçu</a>"
+            . "<br /><br />Ligue Havraise</p>";
         
         $to_email = $this->email;
-        $from_email = "tiphaine.lecorvaisier@liguehavraise.com";
+        //$to_email = "web@groupejador.fr";
+        $from_email = "siege@liguehavraise.com";
         
         $email_subject = "Votre $don sur " . get_bloginfo("name");
         
@@ -579,10 +682,43 @@ class donation extends bii_items {
         $header[] = 'From: ' . get_bloginfo("name") . " <" . $from_email . ">";
         
         $retour = wp_mail($to_email, $email_subject, $string, $header);
-        
-		return $string;
     }
         
+    public function lien_validation() {
+        $keyValidate = md5(uniqid($this->id, true));
+        $lien = site_url('/validate-don/') . "?don=".$keyValidate;
+        $this->updateChamps($keyValidate, 'key_validate');
+        return $lien;
+    }
+    
+    // mail envoyé à la ligue havraise à la réception d'un don. Il comporte le lien de validation du don
+    public function sendMailWithValidate() {
+        
+        $montant = $this->montant();
+        $nom = $this->nom();
+		$prenom = $this->prenom();
+        $don = $this->nom_classe_admin();
+		$lien = $this->lien_validation();
+		
+        $email_body = "<p>Bonjour,<br /><br />"
+            . "Vous venez de recevoir une $don de la part de $prenom $nom d'un montant de $montant €."
+            . "<br />Pour valider le don <a href='$lien'>Cliquez ici</a>"
+            . "<br />Si vous validez le don, le reçu fiscal sera généré et vous sera transmis dans un délai de 1 mois.</p>";
+        
+        $to_email = 'siege@liguehavraise.com';
+        //$to_email = "web@groupejador.fr";
+        $from_email = $this->email;
+        
+        $email_subject = "Votre alerte mail sur " . get_bloginfo("name");
+        
+        $header[] = 'Content-type: text/html; charset=UTF-8';
+        $header[] = 'From: ' . get_bloginfo("name") . " <" . $from_email . ">";
+        
+        $retour = wp_mail($to_email, $email_subject, $email_body, $header);
+        //var_dump($retour);
+    }
+    
+    // mail avec lien du reçu fiscal envoyé à la ligue havraise à la génération du reçu
     public function sendMailWithPdf() {
         
         $montant = $this->montant();
@@ -592,14 +728,14 @@ class donation extends bii_items {
 		$lien = $this->lien_recu();
 		
         $email_body = "<p>Bonjour,<br /><br />"
-            . "Vous venez de recevoir une $don de la part de $prenom $nom d'un montant de $montant €."
-			. "<br /><br />Vous pouvez télécharger le reçu fiscal ici : <a class='theme-button' target='_blank' href='$lien' title='Télécharger le reçu'>Télécharger le reçu</a></p>";
+            . "Le $don de la part de $prenom $nom d'un montant de $montant € a généré un reçu fiscal."
+            . "<br />Vous pouvez le télécharger ici : <a class='theme-button' target='_blank' href='$lien' title='Télécharger le reçu'>Télécharger le reçu</a></p>";
         
-        $to_email = 'tiphaine.lecorvaisier@liguehavraise.com';
-        //$to_email = 'web@GROUPEJADOR.FR';
+        $to_email = 'siege@liguehavraise.com';
+        //$to_email = "web@groupejador.fr";
         $from_email = $this->email;
         
-        $email_subject = "Votre alerte mail sur " . get_bloginfo("name");
+        $email_subject = "Reçu fiscal : " . get_bloginfo("name");
         
         $header[] = 'Content-type: text/html; charset=UTF-8';
         $header[] = 'From: ' . get_bloginfo("name") . " <" . $from_email . ">";

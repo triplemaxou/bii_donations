@@ -1,6 +1,6 @@
 <?php
 
-ini_set('display_errors', '1');
+//ini_set('display_errors', '1');
 require_once(plugin_dir_path(__FILE__) . "../config.php");
 unset($_REQUEST["action"]);
 $ser = serialize($_REQUEST);

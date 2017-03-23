@@ -60,6 +60,7 @@ class ppdo {
 			$db = new PDO('mysql:host=' . $rpdo_host . ';dbname=' . $rpdo_name, $rpdo_user, $rpdo_pwd);
 			$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
 			self::$instance = $db;
+            //bii_custom_log("NEW PDO : ppdo");
 		}
 		return self::$instance;
 	}

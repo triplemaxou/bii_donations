@@ -208,7 +208,7 @@ add_action('init', 'bii_synchro_carts');
 //<editor-fold desc="Shortcodes">
 function bii_SC_messageremerciement($atts,$content = null){
 	$migla = $_REQUEST["id"];
-	bii_write_log("Remerciement : ".$migla);
+	bii_custom_log("Remerciement : ".$migla);
 	$nom_classe = "donation";
 	if(isset($_REQUEST["cotisation"])){
 		$nom_classe = "cotisation";
@@ -216,6 +216,25 @@ function bii_SC_messageremerciement($atts,$content = null){
 	return $nom_classe::static_message_remerciement($migla);
 }
 add_shortcode('bii_message_remerciement', 'bii_SC_messageremerciement');
+
+
+function bii_sc_validate_don() {
+    
+    if (isset($_REQUEST['don'])) {
+        $item = donation::from_token($_REQUEST['don']);
+    } elseif (isset($_REQUEST['cotisation'])) {
+        $item = cotisation::from_token($_REQUEST['cotisation']);
+    }
+    
+    if ($item !== false) {
+        $item->updateChamps(1, 'is_validate');
+        $item->updateChamps('', 'key_validate');
+        return "<p>La donation viens d'être validé.</p>";
+    } else {
+        return "<p>Erreur ! Le token n'est pas valide.</p>";
+    }
+}
+add_shortcode('bii_sc_validate_don', 'bii_sc_validate_don');
 
 //</editor-fold>
 //<editor-fold desc="Gestion Woocommerce">
@@ -567,3 +586,33 @@ return $nblet;
 
 }
 // </editor-fold>
+
+function bii_generate_fiscal() {
+    
+    $where = " etat = 'paye' AND is_validate = 1 AND recu_send = 0 AND date_insert > ".strtotime("-1 month");
+    
+    $donsToSend = donation::all_id($where);
+    if (is_array($donsToSend) && count($donsToSend) > 0) {
+        foreach ($donsToSend as $idDon) {
+            $don = new donation($idDon);
+            $don->sendFiscal();
+        }
+    }
+    
+    $cotisationToSend = cotisation::all_id($where);
+    if (is_array($cotisationToSend) && count($cotisationToSend) > 0) {
+        foreach ($cotisationToSend as $idCot) {
+            $cot = new donation($idCot);
+            $cot->sendFiscal();
+        }
+    }
+    
+}
+
+add_action('bii_generate_fiscal', 'bii_generate_fiscal');
+if (!wp_next_scheduled('bii_generate_fiscal')) {
+    wp_schedule_event(time(), 'daily', 'bii_generate_fiscal');
+}
+
+//wp_clear_scheduled_hook('bii_generate_fiscal');
+//wp_clear_scheduled_hook('my_schedule_hook');

@@ -2,13 +2,14 @@
 /*
   Plugin Name: BiiDonations
   Description: Gestion des donations pour la ligue havraise
-  Version: 0.1.0
+  Version: 0.7.0
   Author: Biilink Agency
   Author URI: http://biilink.com/
   License: GPL2
  */
 
 define ( 'bii_donation_version', '0.7.0' );
+define ( 'bii_donation_path' , plugin_dir_path(__FILE__));
 
 //Plugin biidebug, ajout de fonctions
 require_once(plugin_dir_path(__FILE__) . "/plugins/biidebug/biidebug.php"); 
